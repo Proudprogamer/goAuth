@@ -1,0 +1,13 @@
+package routes
+
+import (
+	"github.com/Proudprogamer/goAuth/http/handlers"
+	"github.com/gin-gonic/gin"
+)
+
+
+func SetUpRoutes(router *gin.Engine, handler *handlers.Handler) {
+
+	router.GET("/home", handler.Home)
+	router.POST("/sign-up", handler.SignUp)
+}

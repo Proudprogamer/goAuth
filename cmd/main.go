@@ -1,17 +1,32 @@
 package main
 
-import "github.com/gin-gonic/gin"
+import (
+	"log"
+
+	"github.com/Proudprogamer/goAuth/http/handlers"
+	"github.com/Proudprogamer/goAuth/http/routes"
+	"github.com/Proudprogamer/goAuth/prisma/db"
+	"github.com/gin-gonic/gin"
+)
 
 
 func main(){
 
-	router := gin.Default()
+	client := db.NewClient()
 
-	router.GET("/", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message" : "pong",
-		})
-	})
+	if err:= client.Prisma.Connect(); err!=nil {
+		log.Fatal("failed to connect to the database", err.Error())
+	}
 
+	defer func() {
+		if err:= client.Prisma.Disconnect(); err!=nil {
+			panic(err)
+		}
+	}()
+
+	handler := handlers.NewHandler(client)
+	router:= gin.Default()
+
+	routes.SetUpRoutes(router, handler)
 	router.Run("localhost:8000")
 }
