@@ -12,9 +12,9 @@ var jwtsecret = []byte(GetSecret())
 
 
 type Claims struct {
-	name string
-	email string
-	password string
+	Name string `json:"username"`
+	Email string `json:"email"`
+	UserId string `json:"user_id"`
 	jwt.RegisteredClaims
 }
 
@@ -32,14 +32,13 @@ func CreateToken(userId, name, email, password string) (string, error){
 	expirationTime := time.Now().Add(24 * time.Hour)
 
 	claims := &Claims{
-		name : name,
-		email : email,
-		password: password,
+		Name : name,
+		Email : email,
+		UserId: userId,
 		RegisteredClaims: jwt.RegisteredClaims{
 			IssuedAt: jwt.NewNumericDate(time.Now()),
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
 			Subject: userId,
-
 		},
 	}
 

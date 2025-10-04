@@ -137,3 +137,15 @@ func (h *Handler) SignIn(ctx *gin.Context){
 		},
 	})
 }
+
+func (h *Handler) GetProfile(ctx *gin.Context){
+	userId := ctx.GetString("user_id")
+	userName := ctx.GetString("username")
+	email := ctx.GetString("email")
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"user_id" : userId,
+		"userName" : userName, 
+		"email" : email,
+	})
+}
