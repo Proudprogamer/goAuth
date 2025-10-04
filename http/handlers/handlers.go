@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/Proudprogamer/goAuth/http/types"
+	"github.com/Proudprogamer/goAuth/http/utils"
 	"github.com/go-playground/validator/v10"
 	"golang.org/x/crypto/bcrypt"
 
@@ -78,6 +79,61 @@ func (h *Handler) SignUp(ctx *gin.Context){
 			"id" : user.ID, 
 			"name": user.Name, 
 			"email": user.Email,
+		},
+	})
+}
+
+func (h *Handler) SignIn(ctx *gin.Context){
+	var userReq types.Login
+
+	if err:=ctx.ShouldBindJSON(&userReq); err!=nil {
+		verr := err.(validator.ValidationErrors)
+		ctx.JSON(500, gin.H{
+			"message" : "error in logging in",
+			"error" : verr.Error(),
+		})
+		return 
+	}
+
+	user, err := h.client.Users.FindFirst(
+		db.Users.Email.Equals(userReq.Email),
+	).Exec(ctx)
+
+	if err!=nil && user==nil{
+		ctx.JSON(500, gin.H{
+			"message" : "Invalid email or password",
+			"error" : err.Error(), 
+		})
+		return
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(userReq.Password))
+
+	if err!=nil {
+		ctx.JSON(500, gin.H{
+			"message" : "Invalid Password",
+			"error" : err.Error(), 
+		})
+		return
+	}
+
+	token, err := utils.CreateToken(user.ID, user.Name, user.Email, user.Password)
+
+	if err!=nil {
+		ctx.JSON(500, gin.H{
+			"message" : "Error in generating a token",
+			"error" : err.Error(), 
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"message" : "Token created",
+		"token" : token, 
+		"user" : gin.H{
+			"id" :user.ID, 
+			"email":user.Email, 
+			"name" :user.Name,
 		},
 	})
 }

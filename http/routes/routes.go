@@ -10,4 +10,5 @@ func SetUpRoutes(router *gin.Engine, handler *handlers.Handler) {
 
 	router.GET("/home", handler.Home)
 	router.POST("/sign-up", handler.SignUp)
+	router.POST("/sign-in", handler.SignIn)
 }
